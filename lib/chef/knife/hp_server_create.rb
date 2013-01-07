@@ -158,12 +158,10 @@ class Chef
           :hp_avl_zone => locate_config_value(:hp_avl_zone).to_sym
           )
 
-        #request and assign a floating IP for the server
-        address = connection.addresses.create()
-        Chef::Log.debug("Floating IP #{address.ip}")
-
         #servers require a name, generate one if not passed
-        node_name = get_node_name(config[:chef_node_name], address.ip)
+        #(we're passing '' as we no longer have the Public IP 
+        #before we create the instance, is there something else unique?)
+        node_name = get_node_name(config[:chef_node_name], '')
 
         Chef::Log.debug("Name #{node_name}")
         Chef::Log.debug("Flavor #{locate_config_value(:flavor)}")
@@ -195,10 +193,6 @@ class Chef
       print "\n#{ui.color("Waiting for server", :magenta)}"
 
       # wait for it to be ready to do stuff
-      server.wait_for { print "."; ready? }
-
-      address.server = server
-
       server.wait_for { print "."; ready? }
 
       puts("\n")
